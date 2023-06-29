@@ -17,7 +17,7 @@ awful.Populate({
     cleanse                 = Spell(4987, { beneficial = true }),
     hand_of_protection      = Spell(10278, { ignoreControl = true }),
     hammer_of_justice       = Spell(5588, { cc = "stun", effect = "magic", ignoreCasting = true }),
-    repentance              = Spell(5588, { cc = "stun", effect = "magic", ignoreCasting = true }),
+    repentance              = Spell(20066, { cc = "stun", effect = "magic", ignoreCasting = true }),
     hand_of_salvation       = Spell(1038, { beneficial = true }),
 
     -- Damage
@@ -136,10 +136,9 @@ end)
 hand_of_protection:Callback(function(spell)
     local friend = awful.friends.within(40).filter(unitFilter).lowest
     if not friend then return end
-    if not friend.v2attackers then return end
 
     local _, melee = friend.v2attackers()
-    if friend.hp < 40 and melee >= 1 then
+    if melee >= 1 and friend.hp < 40 then
         if spell:Cast(friend) then
             awful.alert(spell.name, spell.id)
             return
@@ -373,20 +372,22 @@ local dispelBlacklist = {
 }
 
 cleanse:Callback(function(spell)
-    local friend = awful.fullGroup.within(40).filter(unitFilter).lowest
-    if not friend then return end
-    if not friend.debuffs then return end
+    awful.fullGroup.within(40).filter(unitFilter).loop(function(friend)
+        if not friend then return end
+        if not friend.debuffs then return end
+        if friend.hp < 40 then return end
 
-    for _, debuff in ipairs(friend.debuffs) do
-        local name, _, _, type = unpack(debuff)
+        for _, debuff in ipairs(friend.debuffs) do
+            local name, _, _, type = unpack(debuff)
 
-        if dispelSpells[name] and not dispelBlacklist[name] and friend.hp > 40 then
-            if spell:Cast(friend) then
-                awful.alert(spell.name, spell.id)
-                return
+            if dispelSpells[name] and not dispelBlacklist[name] then
+                if spell:Cast(friend) then
+                    awful.alert(spell.name, spell.id)
+                    return
+                end
             end
         end
-    end
+    end)
 end)
 
 sacred_shield:Callback(function(spell)
@@ -464,7 +465,6 @@ consecration:Callback(function(spell)
     end
 end)
 
-
 divine_plea:Callback(function(spell)
     if player.manaPct < 20 then
         if spell:Cast() then
@@ -536,26 +536,24 @@ local interruptChannel = {
 }
 
 repentance:Callback(function(spell)
-    if not focus.exists then return end
-    if focus.bcc then return end
+    awful.enemies.within(40).filter(unitFilter).loop(function(unit)
+        if not unit then return end
+        if unit.bcc then return end
 
-    if interruptCast[focus.cast] then
-        if focus.castRemains < awful.buffer + awful.latency + 0.03 then
+        if interruptCast[unit.cast] then
             SpellStopCasting()
-            if spell:Cast(focus) then
+            if spell:Cast(unit) then
+                awful.alert(spell.name, spell.id)
+                return
+            end
+        elseif interruptChannel[unit.channel] then
+            SpellStopCasting()
+            if spell:Cast(unit) then
                 awful.alert(spell.name, spell.id)
                 return
             end
         end
-    elseif interruptChannel[focus.channel] then
-        if focus.channelRemains < awful.buffer + awful.latency + 2 then
-            SpellStopCasting()
-            if spell:Cast(focus) then
-                awful.alert(spell.name, spell.id)
-                return
-            end
-        end
-    end
+    end)
 end)
 
 turn_evil:Callback("gargoyle", function(spell)

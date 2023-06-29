@@ -25,15 +25,14 @@ preg:Init(function()
     hand_of_sacrifice("defensive")
     divine_sacrifice("defensive")
 
-    -- Dispels
-    hand_of_freedom()
-    cleanse()
-
     -- Heals / Support
     flash_of_light()
     sacred_shield()
     divine_plea()
     auto_attack()
+
+    -- Dispels
+    hand_of_freedom()
 
     -- Interrupts / CC
     hammer_of_justice()
@@ -48,6 +47,7 @@ preg:Init(function()
     exorcism()
     hammer_of_wrath()
     judgement_of_light()
+    cleanse()
     shield_of_righteousness()
     consecration()
 
