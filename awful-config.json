@@ -1,0 +1,7 @@
+{
+    "load": [
+        "DreamsScriptsPregPvP",
+        "paladin/preg-actor",
+        "paladin/preg-spells"
+    ]
+}
