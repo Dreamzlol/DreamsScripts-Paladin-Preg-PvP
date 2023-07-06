@@ -96,12 +96,7 @@ hand_of_freedom:Callback(function(spell)
     awful.fullGroup.within(30).filter(unitFilter).loop(function(friend)
         if not friend then return end
 
-        if player.hp < 60 and player.slowed or player.rooted then
-            if spell:Cast(friend) then
-                awful.alert(spell.name, spell.id)
-                return
-            end
-        elseif friend.debuff("Kidney Shot") or friend.slowed and friend.rooted then
+        if friend.stun or friend.slowed or friend.rooted then
             if spell:Cast(friend) then
                 awful.alert(spell.name, spell.id)
                 return
@@ -123,9 +118,8 @@ end)
 
 avenging_wrath:Callback(function(spell)
     if not player.combat then return end
-    if player.cooldown("Divine Shield") == 0 then return end
 
-    if target.hp < 60 then
+    if not player.cooldown("Divine Shield") == 0 and target.hp < 60 then
         if spell:Cast() then
             awful.alert(spell.name, spell.id)
             return
@@ -134,26 +128,27 @@ avenging_wrath:Callback(function(spell)
 end)
 
 hand_of_protection:Callback(function(spell)
-    local friend = awful.friends.within(40).filter(unitFilter).lowest
-    if not friend then return end
+    awful.friends.within(40).filter(unitFilter).loop(function(friend)
+        if not friend then return end
 
-    local _, melee = friend.v2attackers()
-    if melee >= 1 and friend.hp < 40 then
-        if spell:Cast(friend) then
-            awful.alert(spell.name, spell.id)
-            return
+        local total, melee, ranged, cooldowns = friend.v2attackers()
+        if melee >= 1 and friend.hp < 40 then
+            if spell:Cast(friend) then
+                awful.alert(spell.name, spell.id)
+                return
+            end
+        elseif friend.disarm then
+            if spell:Cast(friend) then
+                awful.alert(spell.name, spell.id)
+                return
+            end
+        elseif friend.disorient and friend.disorientRemains > 5 then
+            if spell:Cast(friend) then
+                awful.alert(spell.name, spell.id)
+                return
+            end
         end
-    elseif friend.disarm then
-        if spell:Cast(friend) then
-            awful.alert(spell.name, spell.id)
-            return
-        end
-    elseif friend.disorient and friend.disorientRemains > 5 then
-        if spell:Cast(friend) then
-            awful.alert(spell.name, spell.id)
-            return
-        end
-    end
+    end)
 end)
 
 divine_protection:Callback(function(spell)
@@ -172,6 +167,7 @@ divine_sacrifice:Callback("defensive", function(spell)
     local friend = awful.fullGroup.within(30).filter(unitFilter).lowest
 
     if not friend then return end
+    if not friend.buff() then return end
     if friend.buff("Hand of Sacrifice") then return end
     if friend.buff("Hand of Salvation") then return end
 
@@ -300,7 +296,7 @@ flash_of_light:Callback(function(spell)
     local friend = awful.fullGroup.within(40).filter(unitFilter).lowest
     if not friend then return end
 
-    if friend.hp < 70 or (friend.hp < 70 and player.buff("The Art of War")) then
+    if friend.hp < 80 then
         if spell:Cast(friend) then
             awful.alert(spell.name, spell.id)
         end
@@ -338,6 +334,7 @@ local dispelSpells = {
     ["Freeze"] = true,
     ["Frostbite"] = true,
     ["Slow"] = true,
+    ["Shattered Barrier"] = true,
 
     -- Hunter
     ["Pin"] = true,
@@ -393,8 +390,9 @@ end)
 sacred_shield:Callback(function(spell)
     if player.used("Sacred Shield", 5) then return end
 
-    if not player.buff("Sacred Shield") then
-        if spell:Cast(player) then
+    local friend = awful.fullGroup.within(40).filter(unitFilter).lowest
+    if friend.hp < 80 and not friend.buff("Sacred Shield") then
+        if spell:Cast(friend) then
             awful.alert(spell.name, spell.id)
             return
         end

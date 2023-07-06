@@ -4,6 +4,8 @@ local player = awful.player
 
 if awful.player.class2 ~= "PALADIN" then return end
 
+awful.DevMode = true
+
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Preg PvP Loaded!")
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Version: 1.0.3")
 
@@ -20,6 +22,7 @@ preg:Init(function()
 
     -- Defensives
     divine_shield()
+    hand_of_protection()
     divine_protection()
     hand_of_salvation()
     hand_of_sacrifice("defensive")
@@ -28,11 +31,13 @@ preg:Init(function()
     -- Heals / Support
     flash_of_light()
     sacred_shield()
+    hammer_of_wrath()
     divine_plea()
     auto_attack()
 
     -- Dispels
     hand_of_freedom()
+    cleanse()
 
     -- Interrupts / CC
     hammer_of_justice()
@@ -45,9 +50,7 @@ preg:Init(function()
     -- Damage
     avenging_wrath()
     exorcism()
-    hammer_of_wrath()
     judgement_of_light()
-    cleanse()
     shield_of_righteousness()
     consecration()
 
