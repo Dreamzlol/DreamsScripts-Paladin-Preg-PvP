@@ -4,10 +4,8 @@ local player = awful.player
 
 if awful.player.class2 ~= "PALADIN" then return end
 
-awful.DevMode = true
-
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Preg PvP Loaded!")
-awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Version: 1.0.3")
+awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Version: 1.0.4")
 
 preg:Init(function()
 
@@ -37,7 +35,6 @@ preg:Init(function()
 
     -- Dispels
     hand_of_freedom()
-    cleanse()
 
     -- Interrupts / CC
     hammer_of_justice()
@@ -51,6 +48,7 @@ preg:Init(function()
     avenging_wrath()
     exorcism()
     judgement_of_light()
+    cleanse()
     shield_of_righteousness()
     consecration()
 
