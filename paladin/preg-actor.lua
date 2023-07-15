@@ -55,7 +55,7 @@ preg:Init(function()
     -- Buffs
     seal_of_vengeance()
     righteous_fury()
-    retribution_aura()
+    -- retribution_aura()
     blessing_of_kings()
 
 end, 0.05)
